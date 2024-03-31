@@ -1,6 +1,7 @@
 import { memo } from "react";
-import { images } from "../assets/img";
-import { styled } from "styled-components";
+
+import { images } from "../../assets/img";
+import { TokenImageContainer } from "./TokenImage.styled";
 
 interface TokenImageProps {
     currency: string;
@@ -8,10 +9,6 @@ interface TokenImageProps {
     height?: string;
 }
 
-const TokenImageContainer = styled.img`
-    width: ${(props) => props.width};
-    height: ${(props) => props.height};
-`;
 const TokenImage = ({
     currency,
     width = "44px",
