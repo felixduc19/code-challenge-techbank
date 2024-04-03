@@ -13,11 +13,11 @@ function sum_to_n_a(n) {
 // Implementation 2: Recursive
 // This implementation uses recursion to calculate the summation.
 //Warning: When n is large, this implementation may cause a stack overflow error due to the large number of recursive calls.
-function sum_to_n_b(n, acc = 0) {
-    if (n === 0) {
-        return acc;
+function sum_to_n_b(n) {
+    if (n === 1) {
+        return 1;
     } else {
-        return sum_to_n_b(n - 1, acc + n);
+        return n + sum_to_n_b(n - 1);
     }
 }
 

@@ -1,6 +1,7 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, PropsWithChildren } from "react";
 import WalletRow from "./WalletRow";
 import { useWalletBalances } from "./hooks/useWalletBalances";
+import { makeStyles } from "@material-ui/core/styles";
 
 interface WalletBalance {
     currency: string;
@@ -8,13 +9,21 @@ interface WalletBalance {
     blockchain: string; // Added blockchain property
 }
 
-interface FormattedWalletBalance extends WalletBalance {
-    formatted: string;
+interface PricesResponse {
+    currency: string;
+    price: number;
+    date: Date;
 }
 
 interface Props {
-    className?: string;
+    children?: React.ReactNode;
 }
+
+const useStyles = makeStyles({
+    row: {
+        // Your row styles here
+    },
+});
 
 // Implement the Datasource class so that it can retrieve the prices required.
 class Datasource {
@@ -24,7 +33,7 @@ class Datasource {
         this.url = url;
     }
 
-    async getPrices(): Promise<any> {
+    async getPrices(): Promise<PricesResponse[]> {
         try {
             const response = await fetch(this.url);
             if (!response.ok) {
@@ -37,9 +46,16 @@ class Datasource {
     }
 }
 
-const WalletPage: React.FC<Props> = ({ className }) => {
+const WalletPage: React.FC<Props> = (props: Props) => {
+    interface Props extends PropsWithChildren<{}> {
+        className?: string;
+        children?: React.ReactNode;
+    }
+
+    const { children, ...rest } = props;
+    const classes = useStyles(); // Using makeStyles to define styles
     const balances = useWalletBalances();
-    const [prices, setPrices] = useState<any>({});
+    const [prices, setPrices] = useState<PricesResponse[]>({});
 
     useEffect(() => {
         const datasource = new Datasource(
@@ -50,12 +66,12 @@ const WalletPage: React.FC<Props> = ({ className }) => {
             .then((prices) => setPrices(prices))
             .catch((error) => console.error(error));
     }, []);
+
     /**
      * The sortedBalances array is sorted based on the priority of each balance's blockchain.
      * However, the getPriority function is called multiple times during the sorting process, which can be inefficient, especially if the balances array is large.
      * The priority should ideally be computed once for each balance and stored to avoid redundant calculations.
      */
-
     const sortedBalances = useMemo(() => {
         const getPriority = (blockchain: string): number => {
             switch (blockchain) {
@@ -89,14 +105,28 @@ const WalletPage: React.FC<Props> = ({ className }) => {
      * However, this information is not directly used in the rendering process.
      * If the formatted property is not required elsewhere, this step is redundant and adds unnecessary computation.
      */
-
     const rows = useMemo(() => {
         return sortedBalances.map((balance: WalletBalance, index: number) => {
+            /**
+             * Combine map and sort in a single iteration: Instead of sorting sortedBalances after filtering,
+             * you can combine the filter and sort operations in a single step to avoid looping through the array multiple times.
+             */
             const formattedAmount = balance.amount.toFixed();
-            const usdValue = prices[balance.currency] * balance.amount;
+
+            /**
+             * Since prices is an array of objects, we need to find the correct price object based on the currency before calculating the USD value.
+             */
+            const existedPrice = prices.find(
+                (price: PricesResponse) => price.currency === balance.currency
+            );
+            const usdValue = existedPrice
+                ? existedPrice.price * balance.amount
+                : 0;
+
             return (
                 <WalletRow
-                    key={index}
+                    className={classes.row}
+                    key={`${balance.currency}${index}`} // Assuming currency is unique, added index to avoid duplicate keys if currency is not unique
                     amount={balance.amount}
                     usdValue={usdValue}
                     formattedAmount={formattedAmount}
@@ -105,7 +135,7 @@ const WalletPage: React.FC<Props> = ({ className }) => {
         });
     }, [sortedBalances, prices]);
 
-    return <div className={className}>{rows}</div>;
+    return <div {...rest}>{rows}</div>;
 };
 
 export default WalletPage;
