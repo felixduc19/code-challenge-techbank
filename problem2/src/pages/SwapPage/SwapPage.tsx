@@ -93,7 +93,7 @@ const SwapPage = () => {
                 (amountYouPay * selectedToken.youPay.price) / tokenPrice.price;
             setAmountOutput({
                 ...amountOutput,
-                amountYouReceive: amountYouReceive.toFixed(5),
+                amountYouReceive: amountYouReceive.toString(),
             });
         }
     };
@@ -297,7 +297,9 @@ const SwapPage = () => {
                 <ConfirmSwapModal
                     swapData={{
                         amountYouPay: amountOutput.amountYouPay,
-                        amountYouReceive: amountOutput.amountYouReceive,
+                        amountYouReceive: Number(
+                            amountOutput.amountYouReceive
+                        ).toFixed(5),
                         tokenYouPay: selectedToken.youPay,
                         tokenYouReceive: selectedToken.youReceive,
                     }}
