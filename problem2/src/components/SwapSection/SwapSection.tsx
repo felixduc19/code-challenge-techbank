@@ -1,9 +1,8 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
-import { TokenPriceInfo } from "../../types";
-import SelectTokensModal from "../SelectTokensModal/SelectTokensModal";
-import TokenImage from "../TokenImage/TokenImage";
 import ChevronDownWhiteIcon from "../../assets/img/icons/chevron-down-white.svg";
+import { TokenPriceInfo } from "../../types";
+import TokenImage from "../TokenImage/TokenImage";
 import {
     InputContent,
     PriceInUSD,
@@ -22,31 +21,18 @@ interface SwapSectionProps {
     amountInput: string;
     isDisabledInput?: boolean;
     selectedToken: TokenPriceInfo;
-    tokenPriceInfo: TokenPriceInfo[];
     getAmountInput?: (amount: string) => void;
-    onGetSelectedToken: (token: TokenPriceInfo) => void;
+    onToggleModal?: () => void;
 }
 
 const SwapSection = ({
     title,
-    tokenPriceInfo,
     amountInput,
     getAmountInput,
     selectedToken,
-    onGetSelectedToken,
     isDisabledInput = false,
+    onToggleModal,
 }: SwapSectionProps) => {
-    const [isToggleModal, setIsToggleModal] = useState(false);
-
-    const handleToggleModal = () => {
-        setIsToggleModal(!isToggleModal);
-    };
-
-    const handleSelectToken = (token: TokenPriceInfo) => {
-        onGetSelectedToken(token);
-        setIsToggleModal(false);
-    };
-
     const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         getAmountInput && getAmountInput(e.target.value);
     };
@@ -73,7 +59,7 @@ const SwapSection = ({
                         autoCorrect="off"
                         spellCheck="false"
                     />
-                    <SelectTokenButton onClick={handleToggleModal}>
+                    <SelectTokenButton onClick={onToggleModal}>
                         <SelectTokenButtonContent>
                             {selectedToken?.currency && (
                                 <SelectTokenButtonImage>
@@ -95,13 +81,6 @@ const SwapSection = ({
                 </InputContent>
                 <PriceInUSD>${USDPriceConverted || " - "}</PriceInUSD>
             </SwapSectionContainer>
-            {isToggleModal && (
-                <SelectTokensModal
-                    tokenPriceInfo={tokenPriceInfo}
-                    onToggleModal={handleToggleModal}
-                    onSelectToken={handleSelectToken}
-                />
-            )}
         </>
     );
 };

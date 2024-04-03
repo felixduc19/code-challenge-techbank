@@ -3,3 +3,5 @@ export type TokenPriceInfo = {
     price: number;
     date: Date;
 };
+
+export type ButtonVariant = "primary" | "secondary" | "disabled";

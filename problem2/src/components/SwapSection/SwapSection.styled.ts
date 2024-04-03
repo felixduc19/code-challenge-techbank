@@ -4,7 +4,6 @@ const SwapSectionContainer = styled.div`
     border: 1px solid rgb(249, 249, 249);
     border-radius: 24px;
     padding: 16px;
-    margin-bottom: 24px;
     background-color: rgb(249, 249, 249);
 `;
 
@@ -17,7 +16,6 @@ const Title = styled.h3`
 `;
 
 const InputContent = styled.div`
-    width: 500px;
     display: flex;
     justify-content: space-between;
     align-items: center;
